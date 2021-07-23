@@ -1,10 +1,10 @@
 
-import {LitElement, PropertyValues} from "lit-element"
+import {LitElement, PropertyValues} from "lit"
 import {mixinAutowatcher} from "./mixins/mixin-autowatcher.js"
 import {mixinInitiallyHidden} from "./mixins/mixin-initially-hidden.js"
 
-export * from "lit-element"
-export {render} from "lit-html"
+export * from "lit"
+export * from "lit/decorators.js"
 
 export * from "./mixins/mixin-autotrack.js"
 export * from "./mixins/mixin-autowatcher.js"
