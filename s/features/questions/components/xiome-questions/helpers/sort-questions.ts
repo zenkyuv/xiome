@@ -38,8 +38,10 @@ export function sortQuestions(
 		if (a.liked == true && b.liked == false) return promote.a
 		if (b.liked == true && a.liked == false) return promote.b
 
-		if (a.reports < b.reports) return promote.a
-		if (a.reports > b.reports) return promote.b
+		// if (a.reports < b.reports) return promote.a
+		// if (a.reports > b.reports) return promote.b
+		// idk if i should remove these above at all, its working for now,
+		// but not gonna remove it till it gonna pass Chase(pro, expert) review :D
 
 		return 0
 	}
