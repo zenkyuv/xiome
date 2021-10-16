@@ -1,6 +1,6 @@
 
 import {Question} from "../../../api/types/questions-and-answers.js"
-
+import {day} from "../../../../../toolbox/goodtimes/times.js"
 export function sortQuestions(
 		questions: Question[],
 		myUserId?: string
@@ -17,16 +17,20 @@ export function sortQuestions(
 			otherQuestions.push(question)
 	}
 
-	function byLikeAndTime(likes: number, timePosted: number) {
-		if (likes === 0)
-			likes = 1
-		return likes * (1 / (1 + Date.now() - timePosted))
+	function byLikeAndTime(likes, timePosted, report) {
+		const likeIsWorth = likes * day + timePosted;
+		const reported = timePosted - day;
+		if (likeIsWorth && report === false) {
+			return likeIsWorth;
+		} else if (report === true) {
+			return reported;
+		}
 	}
 
 	const sort = (a: Question, b: Question) => {
 		const promote = {a: -1, b: 1}
-		const scoreA = byLikeAndTime(a.likes, a.timePosted)
-		const scoreB = byLikeAndTime(b.likes, b.timePosted)
+		const scoreA = byLikeAndTime(a.likes, a.timePosted, a.reported)
+		const scoreB = byLikeAndTime(b.likes, b.timePosted, b.reported)
 
 		if (scoreA > scoreB) return promote.a
 		if (scoreB > scoreA) return promote.b
