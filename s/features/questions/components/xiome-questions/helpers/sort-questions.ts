@@ -17,7 +17,7 @@ export function sortQuestions(
 			otherQuestions.push(question)
 	}
 
-	function byLikeAndTime(likes, timePosted, report) {
+	function byLikeTimeReport(likes, timePosted, report) {
 		const likeIsWorth = likes * day + timePosted;
 		const reported = timePosted - day;
 		if (likeIsWorth && report === false) {
@@ -29,8 +29,8 @@ export function sortQuestions(
 
 	const sort = (a: Question, b: Question) => {
 		const promote = {a: -1, b: 1}
-		const scoreA = byLikeAndTime(a.likes, a.timePosted, a.reported)
-		const scoreB = byLikeAndTime(b.likes, b.timePosted, b.reported)
+		const scoreA = byLikeTimeReport(a.likes, a.timePosted, a.reported)
+		const scoreB = byLikeTimeReport(b.likes, b.timePosted, b.reported)
 
 		if (scoreA > scoreB) return promote.a
 		if (scoreB > scoreA) return promote.b
