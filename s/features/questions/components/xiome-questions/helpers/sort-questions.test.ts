@@ -4,6 +4,9 @@ import {sortQuestions} from "./sort-questions.js"
 import {day} from "../../../../../toolbox/goodtimes/times.js"
 import {Question} from "../../../api/types/questions-and-answers.js"
 
+const now = Date.now()
+const daysAgo = (x: number) => now - (x * day)
+
 export default <Suite>{
 	async "input length should equal output length"() {
 		const {fakeQuestion} = fakeQuestionSession()
@@ -29,17 +32,14 @@ export default <Suite>{
 	},
 	async "newer question is promoted"() {
 		const {fakeQuestion} = fakeQuestionSession()
-		const now = Date.now()
-		const oneDayAgo = now - (1 * day)
-		const twoDaysAgo = now - (2 * day)
 		const output = sortQuestions([
 			fakeQuestion({
 				authorUserId: "a",
-				timePosted: twoDaysAgo,
+				timePosted: daysAgo(2),
 			}),
 			fakeQuestion({
 				authorUserId: "b",
-				timePosted: oneDayAgo,
+				timePosted: daysAgo(1),
 			}),
 		])
 		expect(output[0].authorUserId).equals("b")
@@ -58,52 +58,60 @@ export default <Suite>{
 		])
 		expect(output[0].reported).equals(false)
 	},
+	async "questions with more reports are demoted more"() {
+		const {fakeQuestion} = fakeQuestionSession()
+		const output = sortQuestions([
+			fakeQuestion({
+				authorUserId: "a",
+				reports: 2,
+				reported: false,
+			}),
+			fakeQuestion({
+				authorUserId: "b",
+				reports: 1,
+				reported: false,
+			}),
+		])
+		expect(output[0].authorUserId).equals("b")
+	},
 	async "user's own questions are always on top"() {
 		const {fakeQuestion} = fakeQuestionSession()
 		const me = "me"
-		const now = Date.now()
-		const oneDayAgo = now - (1 * day)
-		const twoDaysAgo = now - (2 * day)
 		const output = sortQuestions([
 			fakeQuestion({
-				timePosted: oneDayAgo,
+				timePosted: daysAgo(1),
 				likes: 10,
 				liked: true,
 			}),
 			fakeQuestion({
 				authorUserId: me,
-				timePosted: twoDaysAgo,
+				timePosted: daysAgo(2),
 			}),
 		], me)
 		expect(output[0].authorUserId).equals(me)
 	},
-	async "complex data"() {
+	async "complex data 1"() {
 		const {fakeQuestion} = fakeQuestionSession()
-		const now = Date.now()
-		const oneDayAgo = now - (1 * day)
-		const nineDaysAgo = now - (9 * day)
-		const tenDaysAgo = now - (10 * day)
-		const oneYearAgo = now - (365 * day)
 		const input: Question[] = [
 			fakeQuestion({
 				authorUserId: "old",
-				timePosted: oneYearAgo,
+				timePosted: daysAgo(365),
 				likes: 10,
 				liked: true,
 			}),
 			fakeQuestion({
 				authorUserId: "middle-a",
-				timePosted: tenDaysAgo,
+				timePosted: daysAgo(10),
 				likes: 5,
 				liked: true,
 			}),
 			fakeQuestion({
 				authorUserId: "middle-b",
-				timePosted: nineDaysAgo,
+				timePosted: daysAgo(9),
 			}),
 			fakeQuestion({
 				authorUserId: "new",
-				timePosted: oneDayAgo,
+				timePosted: daysAgo(1),
 			}),
 		]
 		return {
@@ -122,14 +130,62 @@ export default <Suite>{
 			},
 		}
 	},
+	"the value of likes and reports": {
+		async "one like is worth one day"() {
+			const {fakeQuestion} = fakeQuestionSession()
+			const output = sortQuestions([
+				fakeQuestion({
+					authorUserId: "a",
+					timePosted: daysAgo(2),
+				}),
+				fakeQuestion({
+					authorUserId: "b",
+					timePosted: daysAgo(1.1),
+					likes: 1,
+				}),
+			])
+			expect(output[0].authorUserId).equals("b")
+		},
+		async "a second like is worth less"() {
+			const {fakeQuestion} = fakeQuestionSession()
+			const output = sortQuestions([
+				fakeQuestion({
+					authorUserId: "a",
+					timePosted: daysAgo(3),
+				}),
+				fakeQuestion({
+					authorUserId: "b",
+					timePosted: daysAgo(1.05),
+					likes: 2,
+				}),
+			])
+			expect(output[0].authorUserId).equals("a")
+		},
+		async "reports are more demotional than likes are promotional"() {
+			const {fakeQuestion} = fakeQuestionSession()
+			const output = sortQuestions([
+				fakeQuestion({
+					authorUserId: "a",
+					timePosted: daysAgo(1.01),
+				}),
+				fakeQuestion({
+					authorUserId: "b",
+					timePosted: daysAgo(1),
+					likes: 10,
+					reports: 9,
+				}),
+			])
+			expect(output[0].authorUserId).equals("a")
+		},
+	},
 }
 
 function fakeQuestionSession() {
 	let count = 0
 	return {
-		fakeQuestion(details?: Partial<Question>) {
+		fakeQuestion(changes?: Partial<Question>): Question {
 			count += 1
-			return {
+			const standard: Question = {
 				answers: [],
 				archive: false,
 				authorUserId: "",
@@ -140,9 +196,11 @@ function fakeQuestionSession() {
 				questionId: "",
 				reported: false,
 				reports: 0,
-				timePosted: Date.now() - count,
-				...details,
+				timePosted: Date.now(),
 			}
+			const question = {...standard, ...changes}
+			question.timePosted -= count
+			return question
 		}
 	}
 }
