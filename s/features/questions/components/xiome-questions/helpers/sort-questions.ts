@@ -19,11 +19,11 @@ export function sortQuestions(
 
 	function byLikeTimeReport(likes, timePosted, report) {
 		const likeIsWorth = likes * day + timePosted;
-		const reported = timePosted - day;
-		if (likeIsWorth && report === false) {
+		const reportedWorth = timePosted - day;
+		if (report === false) {
 			return likeIsWorth;
 		} else if (report === true) {
-			return reported;
+			return reportedWorth;
 		}
 	}
 
