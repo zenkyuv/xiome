@@ -10,12 +10,14 @@ export function makeChatSocketServer({port, servelet}: {
 	const wss = new WebSocketServer({port})
 
 	wss.on("connection", async ws => {
+		console.log('laduje sie gowno');
 		const chatClient = await servelet.acceptConnection({
 			disconnect: () => ws.close(),
 			sendDataToClient: async(...args: any[]) => ws.send(JSON.stringify(args)),
 		})
 
 		ws.on("message", data => {
+			console.log('huj');
 			const args: [string, ...any[]] = JSON.parse(data.toString())
 			chatClient.handleDataFromClient(...args)
 		})

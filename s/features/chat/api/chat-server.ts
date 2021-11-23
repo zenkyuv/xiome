@@ -18,8 +18,6 @@ void async function main() {
 	deathWithDignity()
 	console.log("starting chat server...")
 	const config = json5.parse<SecretConfig>(fs.readFileSync("dev-config.json", "utf8"))
-		// <SecretConfig><unknown>"/dev-config.json";
-		// json5.parse<SecretConfig>(process.env.XIOME_CONFIG)
 	const rando = await getRando()
 	const storage = memoryFlexStorage()
 
@@ -38,5 +36,5 @@ void async function main() {
 		},
 	})
 
-	makeChatSocketServer({servelet, port: 8000})
+	makeChatSocketServer({servelet, port: 8002})
 }()

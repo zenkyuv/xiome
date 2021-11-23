@@ -1,21 +1,28 @@
-import {disconnect} from "process"
 import {prepareChatClientCore} from "../cores/chat-client-core.js"
 
-let client = new WebSocket('ws://localhost:8000');
-console.log(client);
-
-   //sending a message when connection opens
-    client.onopen = (event) => client.send("This is a message from client");
-    //receiving the message from server
-
-
-	const {chatConnect} = prepareChatClientCore({
-		connectToServer: async ({handleDataFromServer}) => {
-			const serverConnection = client;
+export async function chatSocketClient(url:string) {
+		const {chatConnect} = prepareChatClientCore({
+			connectToServer: async ({handleDataFromServer}) => {
+				const socket = new WebSocket(url)
+				console.log(socket.readyState);
+				console.log(socket.CONNECTING, socket.OPEN);
+				socket.onopen = (event) => {
+					socket.send("This is a message from client");
+				}
+				socket.onmessage = (message) => {
+					console.log(message);
+					handleDataFromServer(message.data)
+				}
+				console.log(socket.readyState);
 			return {
-				sendDataToServer: serverConnection,
-				disconnect: async () => serverConnection.close(),
-	
+				// sendDataToServer: socket.onopen = async function () {socket.send('elo')},
+				async sendDataToServer(...data: any[]) {
+					console.log(data);
+					socket.onopen = function () {socket.send(JSON.stringify(data))}
+				},
+				disconnect: async () => socket.close(),
 			}
 		}
-	})
+		})
+	return chatConnect
+}
