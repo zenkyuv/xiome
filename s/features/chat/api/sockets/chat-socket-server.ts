@@ -19,10 +19,8 @@ export function makeChatSocketServer({port, servelet}: {
 			const args: [string, ...any[]] = JSON.parse(data.toString())
 			chatClient.handleDataFromClient(...args)
 		})
-
 		ws.on("close", () => chatClient.handleDisconnect())
 	})
-
 	return {
 		close() {
 			wss.close()
