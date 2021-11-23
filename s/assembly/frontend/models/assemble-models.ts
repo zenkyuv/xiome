@@ -10,6 +10,7 @@ import {makeAccessModel} from "../../../features/auth/aspects/users/models/acces
 import {makePersonalModel} from "../../../features/auth/aspects/users/models/personal-model.js"
 import {makeAdministrativeModel} from "../../../features/administrative/models/administrative-model.js"
 import {makePermissionsModel} from "../../../features/auth/aspects/permissions/models/permissions-model.js"
+import {makeChatServerCore} from "../../../features/chat/api/cores/chat-server-core.js"
 
 export async function assembleModels({
 		appId,
@@ -17,7 +18,7 @@ export async function assembleModels({
 		popups,
 		storage,
 		authMediator,
-		chatConnect,
+	chatConnect,
 	}: AssembleModelsOptions) {
 
 	const accessModel = makeAccessModel({

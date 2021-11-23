@@ -11,12 +11,15 @@ import {mockChatPersistence} from "./cores/persistence/mock-chat-persistence.js"
 import {memoryFlexStorage} from "../../../toolbox/flex-storage/memory-flex-storage.js"
 import {assimilateCrypto} from "../../../assembly/backend/assimilators/assimilate-crypto.js"
 import {configureTokenFunctions} from "../../../assembly/backend/configurators/configure-token-functions.js"
+import fs from "fs"
+
 
 void async function main() {
 	deathWithDignity()
 	console.log("starting chat server...")
-
-	const config = json5.parse<SecretConfig>(process.env.XIOME_CONFIG)
+	const config = json5.parse<SecretConfig>(fs.readFileSync("dev-config.json", "utf8"))
+		// <SecretConfig><unknown>"/dev-config.json";
+		// json5.parse<SecretConfig>(process.env.XIOME_CONFIG)
 	const rando = await getRando()
 	const storage = memoryFlexStorage()
 
